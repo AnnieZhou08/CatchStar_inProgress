@@ -1,0 +1,70 @@
+<html>
+
+</html>
+
+<script>
+//Storage would have to contain
+//wish, time of wish, meteor name of wish 
+/*
+wishes[0] = {
+  "wish":
+  "time of wish":
+  "name of meteor": 
+}
+*/
+// as well as last meteor (used for checking if meteor has rly been updated)
+
+//populates wish array - stores all of them until end of year
+var allWishes = new Array();
+var meteorEvents = new Array();
+var eventId = "";
+function populateWish(myWish, myTime, myMeteor) {
+  var existingWishes = JSON.parse(localStorage.getItem("allWishes"));
+  console.log(existingWishes);
+  if(existingWishes == null) existingWishes = [];
+  
+  var wishValue = myWish;
+  var wishTime = myTime;
+  var wishStar = myMeteor;
+  
+  var currWish = {
+    "wish": wishValue,
+    "time": wishTime,
+    "meteor": wishStar    
+  };
+  
+  localStorage.setItem("currWish", JSON.stringify(currWish));
+  existingWishes.push(currWish);
+  console.log(existingWishes);
+  localStorage.setItem("allWishes", JSON.stringify(existingWishes));
+}
+  
+function populateMeteors(event){
+  var existingEvents = JSON.parse(localStorage.getItem("meteorEvents"));
+  console.log(meteorEvents);
+  if(existingEvents == null) existingEvents = [];
+  
+  var currEvent = event;
+  
+  localStorage.setItem("currEvent", event);
+  existingEvents.push(currEvent);
+  console.log(existingEvents);
+  localStorage.setItem("meteorEvents", JSON.stringify(existingEvents));
+}
+  
+//checks if meteor has been updated
+//if updated - returns true and stores the new meteor event
+//else returns false and keeps the old event
+function checkPrev(event){
+  var prevEvent = localStorage.getItem("eventId");
+  console.log(prevEvent);
+  
+  if(prevEvent != event){
+    localStorage.setItem('eventId', event);
+    return true;
+  }
+  return false;
+}
+
+
+</script>

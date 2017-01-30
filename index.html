@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  </head>
+  
+  <body>
+    
+    <p id = "test">hello</p>
+  
+<script>
+  var url = 'http://138.197.90.43:3000/output.json';
+  
+  setInterval(function(){
+    console.log('server call...');
+    $.get(url, function(data) {
+    console.log(data);
+      for(var i = 0; i < data.length; i++){
+        var obj = data[i];
+        var city = obj.city;
+        var country = obj.country;
+        var duration = obj.duration;
+        var time = obj.time;
+        var id = obj.id;
+        document.getElementById("test").innerHTML=city;
+      }
+    });
+  }, 1000 * 10);
+
+      
+</script>
+    </body>
+    </html>
+    

@@ -1,0 +1,101 @@
+<html>
+
+  <head>
+    <script src="store.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <style>
+      table{
+        width: 50%;
+        margin-top: 5%;
+        margin-left: 50%;
+        text-align: center;
+        border:  1px solid white;
+        border-bottom-color: white;
+        border-collapse: collapse;
+        color: white;
+        font-family: monospace;
+        font-size: 20px;
+        transform: translate(-50%, -5%);
+        padding: 1%;
+      }
+      table, th, td, tr{
+        border: 1px solid white;
+        padding: 2%;
+        width: 700px;
+      }
+      tr{
+        height: 50px;
+      }
+      p { 
+          margin-left: 50%;
+          margin-top: 5%;
+          text-align: center;
+          color: white;
+          font-family: fantasy;
+          font-size: 40px;
+          left: 50%;
+          top:20%;
+          transform: translate(-50%, -5%);
+      }
+      body{
+        background-image: url('wishes.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+      }
+      #submit{
+        margin-top: 2%;
+        margin-left: 50%;
+        transform: translate(-50%, -2%);
+        width: 150px;
+        height: 50px;
+        color: tan;
+        background-color: black;
+        border-color:tan;
+        border-radius: 20px;
+        font-family: fantasy;
+        font-size: 35px;
+      }
+      
+    </style>
+  </head>
+
+  <body>
+    <p class = "words"> My Wishes </p>
+    <table id = "myTable">
+      <tr>
+        <td> My Wish </td>
+        <td> Time of Wish </td>
+        <td style="width = 250px;"> Name of Meteor </td>
+      </tr>
+    </table>
+    <input id = "submit" type = "submit" value = "Home">
+    
+  </body>
+
+  <script>
+    var existingWishes = JSON.parse(localStorage.getItem("allWishes"));
+    console.log(existingWishes);
+    
+    for(var i = 0; i < existingWishes.length; i++){
+      var table = document.getElementById("myTable");
+      var row = table.insertRow(-1);
+      var myWish = row.insertCell(0);
+      var wishTime = row.insertCell(1);
+      var meteorName = row.insertCell(2);
+      
+      myWish.innerHTML = existingWishes[i].wish;
+      wishTime.innerHTML = existingWishes[i].time;
+      meteorName.innerHTML = existingWishes[i].meteor;
+      
+    }
+    
+    $('input').click(function(){
+       window.location.replace("home.html");
+       return false;
+    });
+
+  </script>
+  
+  
+</html>

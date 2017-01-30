@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>three.js - gpu particle system</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<style>
+		body {
+			background-color: #000000;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		a {
+			color: #0078ff;
+		}
+
+		.dg {
+			right: auto!important;
+			left: 20px!important;
+		}
+      
+      .container{
+            content: "";
+            text-align: center;
+            font-size: 40px;
+            color: white;
+            font-family: fantasy;
+            background: url(data.jpeg);
+            background-size: 1000px 500px;
+            position: fixed;
+            opacity: 0.5;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+      }
+      .words{
+          text-align: center;
+          color: white;
+          font-family: fantasy;
+          font-size: 40px;
+          position: fixed;
+          left: 50%;
+          top:20%;
+          transform: translate(-50%, -50%);
+          opacity: 0;
+      }
+      table{
+        width: 50%;
+        margin-top: 25%;
+        margin-left: 50%;
+        text-align: center;
+        border:  1px solid white;
+        border-bottom-color: white;
+        border-collapse: collapse;
+        color: white;
+        font-family: monospace;
+        font-size: 20px;
+        position: absolute;
+        opacity: 0;
+        transform: translate(-50%, -50%);
+      }
+      table, th, td, tr{
+        border: 1px solid white;
+        padding: 2%;
+      }
+      tr{
+        height: 50px;
+      }
+      
+      input{
+        position: fixed;
+        top: 77.5%;
+        left: 50%;
+        transform: translate(-50%, -20%);
+        width: 300px;
+        height: 50px;
+        color: tan;
+        background-color: black;
+        border-color:tan;
+        border-radius: 20px;
+        font-family: fantasy;
+        font-size: 35px;
+        opacity: 0;
+      }
+	</style>
+</head>
+
+<body>
+	<div class = "container" style= "width: 0px; height: 0px;"></div>
+    <div class = "words" style = "opacity: 0;"> Shooting Star Data: </div>
+    <table>
+      <tr>
+        <td style="text-align: left; width: auto;"> Time Seen: </td> <td id = "time"> Time Seen: </td>
+      </tr>
+      <tr>
+        <td style="text-align: left; width: auto;"> Duration: </td> <td id = "duration"> Duration: </td>
+      </tr>
+      <tr>
+        <td style="text-align: left; width: auto;"> Country Seen: </td> <td id = "country"> Country Seen: </td>
+      </tr>
+      <tr>
+        <td style="text-align: left; width: 150px;"> City Seen: </td> <td id = "city"> City Seen: </td>
+      </tr>
+    </table>
+  
+    <input id = "submit" type = "submit" value = "Make A Wish">
+    <script src = "store.js"></script>
+	<script src="build/three.js"></script>
+	<script src="js/controls/TrackballControls.js"></script>
+    <script src="js/renderers/Projector.js"></script>
+	<script src="js/renderers/CanvasRenderer.js"></script>
+
+	<script src="js/libs/stats.min.js"></script>
+	<script src="js/libs/tween.min.js"></script>
+	
+	<script src="js/GPUParticleSystem.js" charset="utf-8"></script>
+
+	<script>
+        
+      window.onload = function start(){
+        var existingEvents = JSON.parse(localStorage.getItem("meteorEvents"));
+        console.log(existingEvents);
+        
+        document.getElementById("time").innerHTML = existingEvents[0].time;
+        document.getElementById("duration").innerHTML = existingEvents[0].duration;
+        document.getElementById("country").innerHTML = existingEvents[0].country;
+        document.getElementById("city").innerHTML = existingEvents[0].city;
+        
+        $('.container').animate({width: "1000px", height:"500px"}, 1000);
+        $('.words').fadeTo(2000, 1);
+        $('table').fadeTo(2000, 1);
+        $('input').fadeTo(2000, 1);
+        
+        $('input').click(function(){
+          removeMeteor(); 
+          //removeID();
+          window.location.replace("wish.html");
+           return false;
+        });
+      }
+        
+		var camera, tick = 0,
+			scene, renderer, clock = new THREE.Clock(true),
+			container,
+			options, spawnerOptions, particleSystem;
+        var existingEvents = 
+		init();
+		animate();
+
+		function init() {
+            var colors = [];
+            colors.push(0x122CD5);
+            colors.push(0x73FDB7);
+            colors.push(0xF338FF);
+            colors.push(0xFFA738);
+            colors.push(0x1A9B0B);
+            colors.push(0xF4500C);
+            colors.push(0xF00CF4);
+            colors.push(0xF4F10C);
+            colors.push(0xA50CF4);
+            colors.push(0x894408);
+            colors.push(0x0C69AF);
+          
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 1, 10000);
+			camera.position.z = 100;
+
+			scene = new THREE.Scene();
+
+			// The GPU Particle system extends THREE.Object3D, and so you can use it
+			// as you would any other scene graph component.	Particle positions will be
+			// relative to the position of the particle system, but you will probably only need one
+			// system for your whole scene
+			particleSystem = new THREE.GPUParticleSystem({
+				maxParticles: 12000
+			});
+			scene.add( particleSystem);
+            var color = colors[Math.floor(Math.random() * colors.length)];
+			// options passed during each spawned
+			options = {
+				position: new THREE.Vector3(),
+				positionRandomness: .5,
+				velocity: new THREE.Vector3(),
+				velocityRandomness: .1,
+				color: color,
+				colorRandomness: .2,
+				turbulence: 0,
+				lifetime: 1,
+				size: 25,
+				sizeRandomness: 1
+			};
+
+			spawnerOptions = {
+				spawnRate: 2300,
+				horizontalSpeed: 1.5,
+				verticalSpeed: 1.5,
+				timeScale: 1
+			};
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio(window.devicePixelRatio/1.2);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			container.appendChild(renderer.domElement);
+
+			// setup controls
+			
+
+			window.addEventListener('resize', onWindowResize, false);
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate() {
+
+			requestAnimationFrame(animate);
+
+			//controls.update();
+            
+			var delta = clock.getDelta() * spawnerOptions.timeScale;
+			tick += delta;
+
+			if (tick < 0) tick = 0;
+
+			if (delta > 0) {
+				options.position.x = Math.sin(tick * spawnerOptions.horizontalSpeed) * 20;
+				options.position.y = Math.sin(tick * spawnerOptions.verticalSpeed) * 10;
+				options.position.z = Math.sin(tick * spawnerOptions.horizontalSpeed + spawnerOptions.verticalSpeed) * 5;
+
+				for (var x = 0; x < spawnerOptions.spawnRate * delta; x++) {
+					// Yep, that's really it.	Spawning particles is super cheap, and once you spawn them, the rest of
+					// their lifecycle is handled entirely on the GPU, driven by a time uniform updated below
+					particleSystem.spawnParticle(options);
+				}
+			}
+
+			particleSystem.update(tick);
+            
+
+			render();
+
+		}
+
+		function render() {
+
+			renderer.render(scene, camera);
+
+		}
+	</script>
+</body>
+
+</html>

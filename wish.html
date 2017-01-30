@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js canvas - particles - random</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+      <script src="store.js"></script>
+      
+		<style>
+			body {
+				background-color: #000000;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			a {
+				color:#0078ff;
+			}
+          
+            #skip{
+              position: fixed;
+              top: 80%;
+              left: 25%;
+              transform: translate(-25%, -80%);
+              width: 150px;
+              height: 50px;
+              color: tan;
+              background-color: black;
+              border-color:tan;
+              border-radius: 20px;
+              font-family: fantasy;
+              font-size: 35px;
+            }
+          
+            #submit{
+              position: fixed;
+              top: 80%;
+              left: 75%;
+              transform: translate(-75%, -80%);
+              width: 300px;
+              height: 50px;
+              color: tan;
+              background-color: black;
+              border-color:tan;
+              border-radius: 20px;
+              font-family: fantasy;
+              font-size: 35px;
+            }
+          
+             table{
+              width: 50%;
+              margin-top: 25%;
+              margin-left: 50%;
+              text-align: center;
+              border:  1px solid white;
+              border-bottom-color: white;
+              border-collapse: collapse;
+              color: white;
+              font-family: monospace;
+              font-size: 20px;
+              position: absolute;
+              opacity: 1;
+              transform: translate(-50%, -50%);
+            }
+            table, th, td, tr{
+              border: 1px solid white;
+              padding: 2%;
+            }
+            tr{
+              height: 50px;
+            }
+          
+          p{
+            font-family: fantasy;
+            font-size: 40px;
+            color: white;
+            position: fixed;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            
+          }
+          
+		</style>
+	</head>
+	<body>
+      <p> Make a Wish </p>
+      <table>
+        <tr>
+          <td> Input your wish here: </td> <td> <textarea id = "wish" name="wish" placeholder="I wish for..." rows = "4" cols = "50"></textarea> </td>
+        </tr>
+        <tr>
+          <td> Name your meteor: </td> <td> <input id = "name" type = "text" style = "font-size: 30px; width: 310px"> </td>      
+        </tr>
+      
+      </table>
+      
+      <input id = "submit" type = "submit" value = "Send Your Wish">
+      <input id = "skip" type = "submit" value = "Skip">
+        
+        <script src="build/three.js"></script>
+
+		<script src="js/renderers/Projector.js"></script>
+		<script src="js/renderers/CanvasRenderer.js"></script>
+
+		<script src="js/libs/stats.min.js"></script>
+		<script src="js/libs/tween.min.js"></script>
+
+		<script>
+
+			var container;
+			var camera, scene, renderer, group, particle;
+			var mouseX = 0, mouseY = 0;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+            var currentdate = new Date();
+
+			init();
+			animate();
+
+			function init() {
+              
+              var existingEvents = JSON.parse(localStorage.getItem("meteorEvents"));
+              console.log(existingEvents);
+              
+              var existingWishes = JSON.parse(localStorage.getItem("allWishes"));
+              console.log(existingWishes);
+                
+                
+                $('#submit').click(function(){
+                  var wish = document.getElementById("wish").value; 
+                  var time = currentdate.getDate() + "/"
+                      +(currentdate.getMonth()+1) + "/"
+                      +currentdate.getFullYear() + " @ "
+                      +currentdate.getHours() + ":"
+                      +currentdate.getMinutes() + ":"
+                      +currentdate.getSeconds();
+                  var meteor = document.getElementById("name").value;
+                  console.log(wish);
+                  console.log(time);
+                  console.log(meteor);
+                   populateWish(wish, time, meteor);
+                   var existingEvents = JSON.parse(localStorage.getItem("meteorEvents"));
+                  console.log(existingEvents);
+                  if(existingEvents.length > 0){
+                    window.location.replace("meteor.html");
+                  }else{
+                    window.location.replace("transition.html");
+                  }
+                   return false;
+                });
+              
+                $('#skip').click(function(){
+                   var existingEvents = JSON.parse(localStorage.getItem("meteorEvents"));
+                  console.log(existingEvents);
+                  if(existingEvents.length > 0){
+                    window.location.replace("meteor.html");
+                  }else{
+                    window.location.replace("transition.html");
+                  }
+                   return false;
+                });
+              
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 1000;
+
+				scene = new THREE.Scene();
+
+				var PI2 = Math.PI * 2;
+				var program = function ( context ) {
+
+					context.beginPath();
+					context.arc( 0, 0, 0.2, 0, PI2, true );
+					context.fill();
+
+				};
+
+				group = new THREE.Group();
+				scene.add( group );
+
+				for ( var i = 0; i < 1500; i++ ) {
+
+					var material = new THREE.SpriteCanvasMaterial( {
+						color: Math.random() * 0x808008 + 0x808080,
+						program: program
+					} );
+
+					particle = new THREE.Sprite( material );
+					particle.position.x = Math.random() * 2000 - 1000;
+					particle.position.y = Math.random() * 2000 - 1000;
+					particle.position.z = Math.random() * 2000 - 1000;
+					particle.scale.x = particle.scale.y = Math.random() * 20 + 10;
+					group.add( particle );
+				}
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			//
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = event.clientX - windowHalfX;
+				mouseY = event.clientY - windowHalfY;
+			}
+
+			function onDocumentTouchStart( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			function onDocumentTouchMove( event ) {
+
+				if ( event.touches.length === 1 ) {
+
+					event.preventDefault();
+
+					mouseX = event.touches[ 0 ].pageX - windowHalfX;
+					mouseY = event.touches[ 0 ].pageY - windowHalfY;
+
+				}
+
+			}
+
+			//
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+
+				render();
+			}
+
+			function render() {
+
+				camera.position.x += ( mouseX - camera.position.x ) * 0.05;
+				camera.position.y += ( - mouseY - camera.position.y ) * 0.05;
+				camera.lookAt( scene.position );
+
+				group.rotation.x += 0.015;
+				group.rotation.y += 0.03;
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>

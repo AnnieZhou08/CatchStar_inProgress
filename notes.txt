@@ -1,0 +1,12 @@
+hello.js -> web server that allows everyone to access public folder at http://ip...:3000
+
+index.js -> web scraper -> run every hour by crontab and puts the file into public/output.json
+
+your chrome extension will use $.get(http://ip:...3000/output.json)
+
+pm2 -> process manager 2
+-> npm install -g pm2
+
+node hello.js 
+node index.js to run web server
+ctrl + c to stop server
