@@ -6,7 +6,7 @@ Note: Still adjusting UI, work still in progress...
 A Chrome Extension that allows users to see when and where a shooting star has occurred and make a wish if shooting star has been "caught". <br>
 This extension is intended to raise awareness for light pollution.
 
-<img src = "images/catchStar_1.jpg">
+<img src = "catchStar_1.PNG">
 
 UI: Three.js for 3d effects and animations <br>
 Storage: local web storage for wishes and meteor events <br>
